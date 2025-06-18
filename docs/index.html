@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet Our Teams</title>
+    <!-- Memuat Tailwind CSS dari CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Menggunakan font Inter untuk tampilan yang lebih modern dan bersih */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style untuk bagian bawah kartu tim yang melengkung */
+        .curved-bottom {
+            border-bottom-left-radius: 50% 20%; /* Elips horizontal dan vertikal */
+            border-bottom-right-radius: 50% 20%;
+        }
+        /* Menyesuaikan ukuran kartu pada breakpoint md (untuk 3 kolom) */
+        @media (min-width: 768px) { /* md breakpoint */
+            .md\:w-1\/3-gap {
+                /* Perhitungan lebar untuk 3 kartu dengan gap-8 */
+                width: calc(33.3333% - (2rem * 2 / 3)); /* 2rem = 32px; 32px * 2 / 3 = 21.33px; 1.3333rem */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen flex flex-col">
+
+    <div class="container mx-auto px-4 py-16 flex-grow">
+        <!-- Bagian Judul -->
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">Meet Our Teams</h1>
+        <div class="w-24 h-1 bg-gradient-to-r from-sky-300 to-sky-700 rounded-full mb-16"></div>
+
+        <!-- Bagian Anggota Tim (Grid Responsif) -->
+        <div class="w-full max-w-6xl mx-auto grid grid-cols-1 md:mt-[150px] sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+            <!-- Kartu Anggota Tim 1 -->
+            <div class="w-full sm:w-11/12 lg:w-full flex flex-row items-center p-6 bg-white rounded-xl shadow-lg transition-transform transform hover:scale-[1.015] duration-300 overflow-hidden pt-8 pb-12 relative curved-bottom">
+                <!-- Lingkaran Profil -->
+                <div class="w-32 h-32 rounded-full border-4 border-blue-500 overflow-hidden mr-4 sm:mr-6 lg:mr-8 flex-shrink-0">
+                    <img src="img/027.jpg" onerror="this.onerror=null; this.src='https://placehold.co/128x128/2563EB/FFFFFF?text=Daffa';" alt="Daffa Akmal Sutansyah" class="w-full h-full object-cover">
+                </div>
+                <!-- Nama dan Jabatan -->
+                <div class="text-left flex-grow">
+                    <p class="text-xl font-bold text-gray-800">Daffa Akmal S</p>
+                    <p class="text-lg text-gray-500 mb-2">202331027</p>
+                    <div class="w-16 h-0.5 bg-blue-600 mt-4 rounded-full"></div>
+                </div>
+            </div>
+
+            <!-- Kartu Anggota Tim 2 -->
+            <div class="w-full sm:w-11/12 lg:w-full flex flex-row items-center p-6 bg-white rounded-xl shadow-lg transition-transform transform hover:scale-[1.015] duration-300 overflow-hidden pt-8 pb-12 relative curved-bottom">
+                <!-- Lingkaran Profil -->
+                <div class="w-32 h-32 rounded-full border-4 border-orange-100 overflow-hidden mr-4 sm:mr-6 lg:mr-8 flex-shrink-0">
+                    <img src="img/044.jpg" onerror="this.onerror=null; this.src='https://placehold.co/128x128/10B981/FFFFFF?text=Rama';" alt="Rama Dianantiar" class="w-full h-full object-cover">
+                </div>
+                <!-- Nama dan Jabatan -->
+                <div class="text-left flex-grow">
+                    <p class="text-xl font-bold text-gray-800">Rama Dianantiar</p>
+                    <p class="text-lg text-gray-500 mb-2">202331044</p>
+                    <div class="w-16 h-0.5 bg-orange-200 mt-4 rounded-full"></div>
+                </div>
+            </div>
+
+            <!-- Kartu Anggota Tim 3 -->
+            <div class="w-full sm:w-11/12 lg:w-full flex flex-row items-center p-6 bg-white rounded-xl shadow-lg transition-transform transform hover:scale-[1.015] duration-300 overflow-hidden pt-8 pb-12 relative curved-bottom">
+                <!-- Lingkaran Profil -->
+                <div class="w-32 h-32 rounded-full border-4 border-red-500 overflow-hidden mr-4 sm:mr-6 lg:mr-8 flex-shrink-0">
+                    <img src="img/070.png" onerror="this.onerror=null; this.src='https://placehold.co/128x128/EF4444/FFFFFF?text=Ridzieq';" alt="Muhammad Ridzieq F" class="w-full h-full object-cover">
+                </div>
+                <!-- Nama dan Jabatan -->
+                <div class="text-left flex-grow">
+                    <p class="text-xl font-bold text-gray-800">Muhammad Ridzieq F</p>
+                    <p class="text-lg text-gray-500 mb-2">202331070</p>
+                    <div class="w-16 h-0.5 bg-red-600 mt-4 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol "To Calculator" -->
+        <div class="mt-10 md:mt-20 text-center">
+            <a href="cal.html" class="inline-flex items-center justify-center px-7 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-xl hover:bg-blue-700 transition duration-300 transform hover:scale-[1.02]">
+                <i class="fas fa-calculator mr-2"></i>Kalkulator
+            </a>
+        </div>
+    </div>
+
+    <!-- Bagian Footer -->
+    <footer class="w-full bg-blue-900 text-gray-200 text-center py-2 shadow-inner">
+        <div class="container mx-auto px-4">
+            <p class="text-lg font-bold mb-0">Metode Numerik</p>
+            <p class="text-sm mb-2">Kelompok Regresi Linear</p>
+            <p class="text-xs">Institut Teknologi PLN 2025</p>
+        </div>
+    </footer>
+
+</body>
+</html>
