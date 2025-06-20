@@ -1,157 +1,178 @@
-l<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="id" class=""> <!-- Kelas 'dark' akan dikelola oleh JavaScript -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Regresi Linear Sederhana</title>
-    <!-- Tailwind CSS CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN for data visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-    <!-- Font Awesome CDN for icons -->
+    <title>Kalkulator Regresi Linear</title>
+    <!-- Memuat Font Awesome untuk ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Memuat Google Font 'Inter' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Memuat Tailwind CSS dari CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Chart.js untuk visualisasi data -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // Konfigurasi Tailwind untuk mengaktifkan dark mode berdasarkan class
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <style>
-        /* Custom styles for better visual appeal */
-        body {
-            font-family: 'Inter', sans-serif; /* Using Inter font */
-            background-color: #f3f4f6; /* Light gray background */
-        }
-        .data-input-container {
-            max-height: 300px; /* Limit height for scrollable data inputs */
-            overflow-y: auto; /* Enable vertical scrolling */
-        }
-        /* Style for scrollbar in webkit browsers */
-        .data-input-container::-webkit-scrollbar {
-            width: 8px;
-        }
-        .data-input-container::-webkit-scrollbar-track {
-            background: #e5e7eb; /* Light gray track */
-            border-radius: 10px;
-        }
-        .data-input-container::-webkit-scrollbar-thumb {
-            background: #9ca3af; /* Darker gray thumb */
-            border-radius: 10px;
-        }
-        .data-input-container::-webkit-scrollbar-thumb:hover {
-            background: #6b7280; /* Even darker gray on hover */
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .data-input-container { max-height: 300px; overflow-y: auto; }
+        /* Kustomisasi scrollbar untuk Webkit (Chrome, Safari) */
+        .data-input-container::-webkit-scrollbar { width: 8px; }
+        .data-input-container::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; }
+        .dark .data-input-container::-webkit-scrollbar-track { background: #374151; }
+        .data-input-container::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 10px; }
+        .dark .data-input-container::-webkit-scrollbar-thumb { background: #6b7280; }
+        .data-input-container::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .dark .data-input-container::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
     </style>
+    <!-- Script untuk memeriksa tema. Defaultnya adalah light mode. -->
+    <script>
+        // Hanya aktifkan dark mode jika sudah dipilih secara eksplisit oleh pengguna sebelumnya.
+        if (localStorage.theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-5xl">
-        <h1 class="text-3xl font-extrabold text-center mb-8 text-gray-900 leading-tight">
-            Kalkulator Regresi Linear Sederhana
-        </h1>
+<body class="bg-gray-100 dark:bg-slate-900 min-h-screen flex flex-col transition-colors duration-500">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            <!-- Input and Calculation Section -->
-            <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 class="text-2xl font-bold mb-5 text-gray-800">Input Data & Hitung</h2>
+    <!-- ===== HEADER ===== -->
+    <header class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="index.html" class="text-xl font-bold text-gray-800 dark:text-white">Regression Teams</a>
+                <button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5 transition-colors duration-300">
+                    <i id="theme-toggle-dark-icon" class="fas fa-moon hidden text-lg"></i>
+                    <i id="theme-toggle-light-icon" class="fas fa-sun hidden text-lg"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
 
-                <!-- Number of Data Input -->
-                <div class="mb-5">
-                    <label for="numData" class="block text-gray-700 text-sm font-semibold mb-2">
-                        Input Pasangan Data (X, Y):
-                    </label>
-                    <div class="flex items-center space-x-3">
-                        <input type="number" id="numData" min="1" value="3"
-                               class="shadow-sm appearance-none border border-gray-300 rounded-lg w-24 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200 ease-in-out">
-                        <button id="createInputs"
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            Buat Input
-                        </button>
+    <main class="flex-grow container mx-auto p-4 md:p-8">
+        <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-5xl mx-auto">
+            <h1 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-gray-50 leading-tight">
+                Kalkulator Regresi Linear
+            </h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                <!-- Kolom Input & Perhitungan -->
+                <div class="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-bold mb-5 text-gray-800 dark:text-gray-100">Input Data</h2>
+                    <div class="mb-5">
+                        <label for="numData" class="block text-gray-700 dark:text-gray-300 text-sm font-semibold mb-2">Jumlah Pasangan Data (X, Y):</label>
+                        <div class="flex items-center space-x-3">
+                            <input type="number" id="numData" min="2" value="3" class="shadow-sm appearance-none border border-gray-300 dark:border-gray-600 dark:bg-slate-700 dark:text-gray-200 rounded-lg w-24 py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-500 transition">
+                            <button id="createInputs" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400">Buat</button>
+                        </div>
+                    </div>
+                    <div id="dataInputs" class="data-input-container border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6 bg-white dark:bg-slate-800 shadow-sm"></div>
+                    <button id="calculateBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition w-full focus:outline-none focus:ring-2 focus:ring-green-400"><i class="fas fa-calculator mr-2"></i>Hitung Regresi</button>
+                </div>
+
+                <!-- Kolom Hasil & Prediksi -->
+                <div class="bg-gray-50 dark:bg-slate-900/50 p-6 rounded-lg shadow-inner">
+                    <h2 class="text-2xl font-bold mb-5 text-gray-800 dark:text-gray-100">Hasil & Prediksi</h2>
+                    <div id="results" class="bg-white dark:bg-slate-800 p-5 rounded-lg shadow mb-6 border border-gray-200 dark:border-gray-700">
+                        <p class="text-gray-800 dark:text-gray-200 text-lg mb-3 font-semibold">Persamaan: <span id="regressionEquation" class="font-normal text-blue-700 dark:text-sky-400">y = a + bx</span></p>
+                        <p class="text-gray-700 dark:text-gray-300 mb-2"><strong class="dark:text-gray-100">Intercept (a):</strong> <span id="interceptA" class="font-medium text-purple-700 dark:text-purple-400">0.00000</span></p>
+                        <p class="text-gray-700 dark:text-gray-300"><strong class="dark:text-gray-100">Slope (b):</strong> <span id="slopeB" class="font-medium text-purple-700 dark:text-purple-400">0.00000</span></p>
+                    </div>
+                    <div class="mb-5">
+                        <label for="xPredict" class="block text-gray-700 dark:text-gray-300 text-sm font-semibold mb-2">Prediksi Y dari nilai X:</label>
+                        <input type="number" id="xPredict" placeholder="Contoh: 5" class="shadow-sm appearance-none border border-gray-300 dark:border-gray-600 dark:bg-slate-700 dark:text-gray-200 rounded-lg w-full py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 transition">
+                    </div>
+                    <button id="predictBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition w-full focus:outline-none focus:ring-2 focus:ring-purple-400"><i class="fas fa-lightbulb mr-2"></i>Prediksi</button>
+                    <div id="predictionResult" class="bg-white dark:bg-slate-800 p-5 rounded-lg shadow mt-6 border border-gray-200 dark:border-gray-700">
+                        <p class="text-gray-800 dark:text-gray-200 text-md font-semibold">Hasil Prediksi (Y): <span id="yPrediction" class="font-bold text-green-700 dark:text-green-400 text-md">0.00000</span></p>
                     </div>
                 </div>
-
-                <!-- Dynamic Data Input Fields -->
-                <div id="dataInputs" class="data-input-container border border-gray-200 rounded-lg p-4 mb-6 bg-white shadow-sm">
-                    <!-- Dynamic input fields will be added here by JavaScript -->
-                </div>
-
-                <!-- Calculate Button -->
-                <button id="calculateBtn"
-                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out w-full focus:outline-none focus:ring-2 focus:ring-green-400">
-                    <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l-2 2a1 1 0 01-1.414 0l-1.414-1.414a1 1 0 010-1.414L7.586 1H17a1 1 0 011 1v17a1 1 0 01-1 1H9z"></path></svg>
-                    Hitung Regresi
-                </button>
             </div>
 
-            <!-- Results and Prediction Section -->
-            <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 class="text-2xl font-bold mb-5 text-gray-800">Hasil & Prediksi</h2>
-
-                <!-- Regression Results Display -->
-                <div id="results" class="bg-white p-5 rounded-lg shadow mb-6 border border-gray-200">
-                    <p class="text-gray-800 text-lg mb-3 font-semibold">
-                        Persamaan Regresi: <span id="regressionEquation" class="font-normal text-blue-700">y = a + bx</span>
-                    </p>
-                    <p class="text-gray-700 mb-2">
-                        <strong class="text-gray-800">Nilai Intercept (a):</strong>
-                        <span id="interceptA" class="font-medium text-purple-700">0.0000</span>
-                    </p>
-                    <p class="text-gray-700">
-                        <strong class="text-gray-800">Nilai Slope (b):</strong>
-                        <span id="slopeB" class="font-medium text-purple-700">0.0000</span>
-                    </p>
-                </div>
-
-                <!-- Prediction Input -->
-                <div class="mb-5">
-                    <label for="xPredict" class="block text-gray-700 text-sm font-semibold mb-2">
-                        Masukkan Nilai X untuk Prediksi Y:
-                    </label>
-                    <input type="number" id="xPredict" placeholder="Contoh: 5"
-                           class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition duration-200 ease-in-out">
-                </div>
-
-                <!-- Predict Button -->
-                <button id="predictBtn"
-                        class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out w-full focus:outline-none focus:ring-2 focus:ring-purple-400">
-                    <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    Prediksi Y
-                </button>
-
-                <!-- Prediction Result Display -->
-                <div id="predictionResult" class="bg-white p-5 rounded-lg shadow mt-6 border border-gray-200">
-                    <p class="text-gray-800 text-md font-semibold">
-                        Hasil Prediksi Y:
-                        <span id="yPrediction" class="font-normal text-green-700">0.0000</span>
-                    </p>
+            <!-- Bagian Grafik -->
+            <div class="mt-10 bg-gray-50 dark:bg-slate-900/50 p-6 rounded-xl shadow-inner relative">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100 text-center">Visualisasi Data</h2>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 h-80 md:h-96">
+                    <canvas id="regressionChart"></canvas>
                 </div>
             </div>
+            
+            <!-- ===== BAGIAN KESIMPULAN BARU ===== -->
+            <div id="conclusionSection" class="mt-8 bg-gray-50 dark:bg-slate-900/50 p-6 rounded-xl shadow-inner hidden">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100 text-center">Kesimpulan Analisis</h2>
+                <div id="conclusionText" class="text-gray-700 dark:text-gray-300 space-y-3 leading-relaxed text-base">
+                    <!-- Kesimpulan dinamis akan dimasukkan di sini oleh JavaScript -->
+                </div>
+            </div>
+            <!-- ===== AKHIR BAGIAN KESIMPULAN ===== -->
         </div>
+    </main>
+    
+    <!-- Tombol Reset Mengambang -->
+    <button id="resetBtn" class="fixed bottom-6 right-6 bg-red-600 hover:bg-red-700 text-white font-bold p-4 rounded-full shadow-lg transition transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-400 z-40" title="Reset Kalkulator"><i class="fas fa-sync-alt text-xl"></i></button>
 
-        <!-- Chart Section -->
-        <div class="mt-10 bg-gray-50 p-6 rounded-xl shadow-inner relative">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Visualisasi Data & Garis Regresi</h2>
-            <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-                <canvas id="regressionChart" class="w-full h-80 md:h-96"></canvas>
-            </div>
-        </div>
-
-        <!-- Message Box for Alerts -->
-        <div id="messageBox" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-            <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
-                <p id="messageText" class="text-lg text-gray-800 mb-4"></p>
-                <button id="closeMessageBox" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    Oke
-                </button>
-            </div>
+    <!-- Kotak Pesan Kustom -->
+    <div id="messageBox" class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+            <p id="messageText" class="text-lg text-gray-800 dark:text-gray-100 mb-4"></p>
+            <button id="closeMessageBox" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400">Oke</button>
         </div>
     </div>
 
-    <!-- Tombol Reset Mengambang (Selalu terlihat dan melayang di pojok kanan bawah) -->
-    <button id="resetBtn"
-            class="fixed bottom-4 right-4 md:bottom-10 md:right-20 bg-yellow-400 hover:bg-yellow-500 text-white font-bold p-3 rounded-full shadow-lg transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-300 z-40">
-        <i class="fas fa-sync-alt text-xl"></i>
-    </button>
+    <!-- ===== NEW FOOTER STARTS HERE ===== -->
+    <footer class="bg-white dark:bg-slate-800/50 text-gray-600 dark:text-gray-400 shadow-inner mt-auto">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-5">
+            <!-- Main Footer Content -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-12 text-center md:text-left">
+                <!-- Branding Section -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-2">Metode Numerik | Linear Regression</h3>
+                    <p class="text-sm">Project Besar untuk mata kuliah Metode Numerik, berfokus pada implementasi dan visualisasi Algoritma Regresi linear.</p>
+                </div>
+                
+                <!-- Spacer for middle column on large screens -->
+                <div class="hidden lg:block"></div>
+
+                <!-- Social Links Section -->
+                <div class="flex flex-col items-center md:items-end">
+                    <!-- <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Hubungi Kami</h3> -->
+                    <div class="flex space-x-5">
+                        <a href="#" class="hover:text-sky-500 transition-colors duration-300 transform hover:-translate-y-1">
+                            <i class="fab fa-github fa-2x"></i>
+                        </a>
+                        <a href="#" class="hover:text-sky-500 transition-colors duration-300 transform hover:-translate-y-1">
+                            <i class="fab fa-instagram fa-2x"></i>
+                        </a>
+                        <a href="#" class="hover:text-sky-500 transition-colors duration-300 transform hover:-translate-y-1">
+                            <i class="fab fa-linkedin fa-2x"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sub-Footer / Copyright Bar -->
+            <div class="border-t border-gray-200 dark:border-gray-700 py-3">
+                <p class="text-center text-sm">&copy; 2025 Institut Teknologi PLN. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- ===== NEW FOOTER ENDS HERE ===== -->
 
     <script>
-        // Get references to HTML elements
+        // --- Referensi Elemen DOM ---
         const numDataInput = document.getElementById('numData');
         const createInputsBtn = document.getElementById('createInputs');
         const dataInputsContainer = document.getElementById('dataInputs');
         const calculateBtn = document.getElementById('calculateBtn');
+        const resetBtn = document.getElementById('resetBtn');
         const regressionEquationSpan = document.getElementById('regressionEquation');
         const interceptASpan = document.getElementById('interceptA');
         const slopeBSpan = document.getElementById('slopeB');
@@ -159,84 +180,78 @@ l<!DOCTYPE html>
         const predictBtn = document.getElementById('predictBtn');
         const yPredictionSpan = document.getElementById('yPrediction');
         const chartCanvas = document.getElementById('regressionChart');
-        const ctx = chartCanvas.getContext('2d');
         const messageBox = document.getElementById('messageBox');
         const messageText = document.getElementById('messageText');
         const closeMessageBoxBtn = document.getElementById('closeMessageBox');
-        const resetBtn = document.getElementById('resetBtn'); // Diubah menjadi satu tombol reset
+        const conclusionSection = document.getElementById('conclusionSection');
+        const conclusionTextEl = document.getElementById('conclusionText');
+        
+        // --- Logika Dark Mode ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const htmlElement = document.documentElement;
 
-        let regressionChart; // Variable to hold the Chart.js instance
+        let regressionChart;
+        let lastChartData = { x: [], y: [], a: 0, b: 0 };
 
-        /**
-         * Shows a custom message box instead of `alert()`.
-         * @param {string} message - The message to display.
-         */
+        function setIconVisibility() {
+            if (htmlElement.classList.contains('dark')) {
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+            } else {
+                themeToggleLightIcon.classList.add('hidden');
+                themeToggleDarkIcon.classList.remove('hidden');
+            }
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+            setIconVisibility();
+            updateChart(lastChartData.x, lastChartData.y, lastChartData.a, lastChartData.b);
+        });
+
+        // --- Logika Kalkulator ---
         function showMessageBox(message) {
             messageText.textContent = message;
             messageBox.classList.remove('hidden');
         }
 
-        /**
-         * Hides the custom message box.
-         */
-        closeMessageBoxBtn.addEventListener('click', () => {
-            messageBox.classList.add('hidden');
-        });
+        closeMessageBoxBtn.addEventListener('click', () => messageBox.classList.add('hidden'));
 
-        /**
-         * Creates or updates the input fields for X and Y data points
-         * based on the number specified by the user.
-         */
         function createDataInputFields() {
             const numData = parseInt(numDataInput.value);
-            // Validate the number of data points
-            if (isNaN(numData) || numData < 1) {
-                showMessageBox('Jumlah data harus berupa angka positif.');
-                numDataInput.value = 1; // Reset to default
+            if (isNaN(numData) || numData < 2) {
+                showMessageBox('Jumlah data minimal harus 2.');
+                numDataInput.value = 2;
                 return;
             }
-
-            dataInputsContainer.innerHTML = ''; // Clear existing input fields
+            dataInputsContainer.innerHTML = '';
             for (let i = 0; i < numData; i++) {
                 const div = document.createElement('div');
-                div.className = 'flex flex-col sm:flex-row gap-2 mb-2'; // Responsive layout for inputs
+                div.className = 'flex items-center gap-2 mb-2';
                 div.innerHTML = `
-                    <label class="block text-gray-600 text-sm font-medium pt-2 w-full sm:w-24 flex-shrink-0">Data ${i + 1}:</label>
-                    <input type="number" placeholder="X" class="x-input shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200 ease-in-out" step="any">
-                    <input type="number" placeholder="Y" class="y-input shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200 ease-in-out" step="any">
+                    <label class="text-gray-600 dark:text-gray-400 text-sm font-medium w-16">Data ${i + 1}:</label>
+                    <input type="number" placeholder="X" class="x-input shadow-sm appearance-none border border-gray-300 dark:border-gray-600 dark:bg-slate-700 dark:text-gray-200 rounded-lg w-[37%] py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 transition" step="any">
+                    <input type="number" placeholder="Y" class="y-input shadow-sm appearance-none border border-gray-300 dark:border-gray-600 dark:bg-slate-700 dark:text-gray-200 rounded-lg w-[37%] py-2 px-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 transition" step="any">
                 `;
                 dataInputsContainer.appendChild(div);
             }
         }
 
-        // Initialize input fields when the page loads
-        createDataInputFields();
-        // Event listener for "Buat Input" button
-        createInputsBtn.addEventListener('click', createDataInputFields);
-
-        /**
-         * Calculates the simple linear regression (slope 'b' and intercept 'a')
-         * based on the input X and Y data points.
-         */
         function calculateRegression() {
             const xInputs = document.querySelectorAll('.x-input');
             const yInputs = document.querySelectorAll('.y-input');
-
-            // Extract values and convert to numbers
             const x = Array.from(xInputs).map(input => parseFloat(input.value));
             const y = Array.from(yInputs).map(input => parseFloat(input.value));
             const n = x.length;
 
-            let sum_x = 0;
-            let sum_y = 0;
-            let sum_xy = 0;
-            let sum_x2 = 0;
-
-            // Check for valid numbers and calculate sums
+            let sum_x = 0, sum_y = 0, sum_xy = 0, sum_x2 = 0;
             for (let i = 0; i < n; i++) {
                 if (isNaN(x[i]) || isNaN(y[i])) {
-                    showMessageBox('Harap masukkan angka untuk semua data X dan Y.');
-                    return; // Exit if invalid input is found
+                    showMessageBox('Harap masukkan angka valid untuk semua data.');
+                    return;
                 }
                 sum_x += x[i];
                 sum_y += y[i];
@@ -244,227 +259,165 @@ l<!DOCTYPE html>
                 sum_x2 += x[i] * x[i];
             }
 
-            // Calculate the denominator for slope 'b'
             const denominator = (n * sum_x2 - sum_x * sum_x);
-
-            // Handle cases where regression cannot be calculated (e.g., all X values are the same)
             if (denominator === 0) {
-                showMessageBox('Tidak dapat menghitung regresi. Variasi nilai X terlalu kecil atau semua nilai X sama.');
-                // Reset displayed results
-                regressionEquationSpan.textContent = 'y = a + bx';
-                interceptASpan.textContent = '0.0000';
-                slopeBSpan.textContent = '0.0000';
-                // Clear the chart
-                updateChart([], [], 0, 0);
+                showMessageBox('Tidak dapat menghitung regresi. Semua nilai X sama.');
                 return;
             }
 
-            // Calculate slope (b) and intercept (a)
             const b = (n * sum_xy - sum_x * sum_y) / denominator;
             const a = (sum_y - b * sum_x) / n;
 
-            // Display the calculated results, formatted to 4 decimal places
-            regressionEquationSpan.textContent = `y = ${a.toFixed(5)} + ${b.toFixed(5)}x`; // Changed to 5 decimal places
+            regressionEquationSpan.textContent = `y = ${a.toFixed(5)} + ${b.toFixed(5)}x`;
             interceptASpan.textContent = a.toFixed(5);
             slopeBSpan.textContent = b.toFixed(5);
-
-            // Update the chart with new data and regression line
+            
+            lastChartData = { x, y, a, b };
             updateChart(x, y, a, b);
+            generateConclusion(a, b); // Panggil fungsi untuk membuat kesimpulan
+        }
+        
+        function generateConclusion(a, b) {
+            let relationshipType = '';
+            let relationshipEffect = '';
+
+            // Menentukan jenis hubungan berdasarkan nilai slope (b)
+            if (b > 0.0001) {
+                relationshipType = 'positif';
+                relationshipEffect = `meningkatkan nilai Y sebesar <strong class="text-green-600 dark:text-green-400">${b.toFixed(4)}</strong>`;
+            } else if (b < -0.0001) {
+                relationshipType = 'negatif';
+                relationshipEffect = `menurunkan nilai Y sebesar <strong class="text-red-600 dark:text-red-400">${Math.abs(b).toFixed(4)}</strong>`;
+            } else {
+                relationshipType = 'sangat lemah atau tidak signifikan';
+                relationshipEffect = 'hampir tidak mengubah nilai Y';
+            }
+
+            // Membuat teks kesimpulan
+            conclusionTextEl.innerHTML = `
+                <p>Model regresi yang terbentuk adalah <strong class="text-gray-900 dark:text-white">y = ${a.toFixed(4)} + ${b.toFixed(4)}x</strong>. Ini mengindikasikan adanya hubungan <strong>${relationshipType}</strong> antara variabel X dan Y.</p>
+                <p>Secara spesifik, setiap kenaikan <strong>1 unit</strong> pada variabel X, diperkirakan akan ${relationshipEffect}.</p>
+                <p>Nilai intercept (a) sebesar <strong class="text-gray-900 dark:text-white">${a.toFixed(4)}</strong> merupakan nilai prediksi untuk Y ketika variabel X bernilai 0.</p>
+            `;
+
+            conclusionSection.classList.remove('hidden'); // Tampilkan bagian kesimpulan
+        }
+        
+        function predictValue() {
+            const xPredict = parseFloat(xPredictInput.value);
+            const a = parseFloat(interceptASpan.textContent);
+            const b = parseFloat(slopeBSpan.textContent);
+
+            if (isNaN(xPredict)) {
+                showMessageBox('Masukkan nilai X untuk prediksi.');
+                return;
+            }
+            if (isNaN(a) || isNaN(b) || (a === 0 && b === 0)) {
+                showMessageBox('Hitung regresi terlebih dahulu.');
+                return;
+            }
+
+            const yPredict = a + b * xPredict;
+            yPredictionSpan.textContent = yPredict.toFixed(5);
         }
 
-        // Event listener for "Hitung Regresi" button
-        calculateBtn.addEventListener('click', calculateRegression);
-
-        /**
-         * Predicts the Y value based on a given X value and the calculated
-         * regression parameters (a and b).
-         */
-        predictBtn.addEventListener('click', () => {
-            const xPredict = parseFloat(xPredictInput.value);
-            const a = parseFloat(interceptASpan.textContent); // Get 'a' from displayed result
-            const b = parseFloat(slopeBSpan.textContent);     // Get 'b' from displayed result
-
-            // Validate inputs for prediction
-            if (isNaN(xPredict)) {
-                showMessageBox('Harap masukkan nilai X untuk prediksi.');
-                return;
-            }
-            if (isNaN(a) || isNaN(b) || (a === 0 && b === 0 && regressionEquationSpan.textContent === 'y = a + bx')) {
-                showMessageBox('Harap hitung regresi terlebih dahulu sebelum melakukan prediksi.');
-                return;
-            }
-
-            // Calculate predicted Y
-            const yPredict = a + b * xPredict;
-            // Display the predicted Y, formatted to 4 decimal places
-            yPredictionSpan.textContent = yPredict.toFixed(5); // Changed to 5 decimal places
-        });
-
-        /**
-         * Updates the Chart.js graph with new data points and the regression line.
-         * @param {number[]} xData - Array of X values.
-         * @param {number[]} yData - Array of Y values.
-         * @param {number} a - The intercept value.
-         * @param {number} b - The slope value.
-         */
         function updateChart(xData, yData, a, b) {
-            // Prepare data points for the scatter plot
+            const isDarkMode = htmlElement.classList.contains('dark');
+            const themeColors = {
+                grid: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                ticks: isDarkMode ? '#cbd5e1' : '#666',
+                labels: isDarkMode ? '#e2e8f0' : '#333'
+            };
+
             const dataPoints = xData.map((val, index) => ({ x: val, y: yData[index] }));
-
-            // Determine min and max X values from the input data to draw the regression line across the data range
             const minX = xData.length > 0 ? Math.min(...xData) : 0;
-            const maxX = xData.length > 0 ? Math.max(...xData) : 10; // Default max if no data
-
-            // Calculate points for the regression line based on min and max X
+            const maxX = xData.length > 0 ? Math.max(...xData) : 10;
             const regressionLinePoints = [
                 { x: minX, y: a + b * minX },
                 { x: maxX, y: a + b * maxX }
             ];
 
-            // Destroy the existing chart instance if it exists to prevent memory leaks and conflicts
             if (regressionChart) {
                 regressionChart.destroy();
             }
 
-            // Create a new Chart.js instance
-            regressionChart = new Chart(ctx, {
-                type: 'scatter', // Main chart type is scatter for data points
+            regressionChart = new Chart(chartCanvas.getContext('2d'), {
+                type: 'scatter',
                 data: {
                     datasets: [{
-                        label: 'Data Points',
+                        label: 'Titik Data',
                         data: dataPoints,
-                        backgroundColor: 'rgba(75, 192, 192, 0.8)', // Teal color for points
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        pointRadius: 7, // Larger points for visibility
-                        pointHoverRadius: 9,
-                        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    },
-                    {
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBorderWidth: 2,
+                        pointBorderColor: '#fff'
+                    }, {
                         label: 'Garis Regresi',
                         data: regressionLinePoints,
-                        type: 'line', // This dataset is a line
+                        type: 'line',
                         fill: false,
-                        borderColor: 'rgb(255, 99, 132)', // Red color for regression line
-                        borderWidth: 3, // Thicker line
-                        tension: 0.1, // Smoothness of the line (0 for straight)
-                        pointRadius: 0, // Hide points on the line
-                        pointHoverRadius: 0
+                        borderColor: 'rgba(239, 68, 68, 0.8)',
+                        borderWidth: 3,
+                        tension: 0,
+                        pointRadius: 0
                     }]
                 },
                 options: {
-                    responsive: true, // Make chart responsive
-                    maintainAspectRatio: false, // Do not maintain aspect ratio for flexible sizing
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         tooltip: {
                             callbacks: {
-                                // Custom tooltip to display X and Y values
-                                label: function(context) {
-                                    return `(X: ${context.parsed.x.toFixed(2)}, Y: ${context.parsed.y.toFixed(2)})`;
-                                }
+                                label: context => `(X: ${context.parsed.x.toFixed(2)}, Y: ${context.parsed.y.toFixed(2)})`
                             }
                         },
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                font: {
-                                    size: 14
-                                },
-                                color: '#333'
-                            }
-                        }
+                        legend: { labels: { color: themeColors.labels, font: { size: 14 } } }
                     },
                     scales: {
                         x: {
-                            type: 'linear', // X-axis is linear
+                            type: 'linear',
                             position: 'bottom',
-                            title: {
-                                display: true,
-                                text: 'Nilai X', // X-axis label
-                                font: {
-                                    size: 16,
-                                    weight: 'bold'
-                                },
-                                color: '#555'
-                            },
-                            grid: {
-                                borderColor: '#e0e0e0'
-                            },
-                            ticks: {
-                                color: '#666'
-                            }
+                            title: { display: true, text: 'Nilai Independen (X)', font: { size: 16, weight: 'bold' }, color: themeColors.labels },
+                            grid: { color: themeColors.grid, borderColor: themeColors.grid },
+                            ticks: { color: themeColors.ticks }
                         },
                         y: {
-                            type: 'linear', // Y-axis is linear
-                            title: {
-                                display: true,
-                                text: 'Nilai Y', // Y-axis label
-                                font: {
-                                    size: 16,
-                                    weight: 'bold'
-                                },
-                                color: '#555'
-                            },
-                            grid: {
-                                borderColor: '#e0e0e0'
-                            },
-                            ticks: {
-                                color: '#666'
-                            }
+                            title: { display: true, text: 'Nilai Dependen (Y)', font: { size: 16, weight: 'bold' }, color: themeColors.labels },
+                            grid: { color: themeColors.grid, borderColor: themeColors.grid },
+                            ticks: { color: themeColors.ticks }
                         }
                     }
                 }
             });
         }
-
-        /**
-         * Resets all inputs, results, and the chart to their initial state.
-         */
+        
         function resetCalculator() {
-            numDataInput.value = 3; // Reset number of data points
-            createDataInputFields(); // Re-create inputs with default 3 data points
-
-            // Clear prediction input
+            numDataInput.value = 3;
+            createDataInputFields();
             xPredictInput.value = '';
-
-            // Reset regression results display
             regressionEquationSpan.textContent = 'y = a + bx';
-            interceptASpan.textContent = '0.0000';
-            slopeBSpan.textContent = '0.0000';
-            yPredictionSpan.textContent = '0.0000';
-
-            // Clear the chart
+            interceptASpan.textContent = '0.00000';
+            slopeBSpan.textContent = '0.00000';
+            yPredictionSpan.textContent = '0.00000';
+            lastChartData = { x: [], y: [], a: 0, b: 0 };
             updateChart([], [], 0, 0);
-
-            // Re-populate with initial example data for 3 points
-            // const initialX = [1, 2, 3];
-            // const initialY = [2, 4, 5];
-
-            const xInputs = document.querySelectorAll('.x-input');
-            const yInputs = document.querySelectorAll('.y-input');
-
-            initialX.forEach((val, idx) => {
-                if (xInputs[idx]) xInputs[idx].value = val;
-            });
-            initialY.forEach((val, idx) => {
-                if (yInputs[idx]) yInputs[idx].value = val;
-            });
-
-            calculateRegression(); // Recalculate regression for the reset data
+            
+            // Sembunyikan dan kosongkan kesimpulan
+            conclusionTextEl.innerHTML = '';
+            conclusionSection.classList.add('hidden');
         }
 
-        // Initialize the chart with empty data on page load
-        updateChart([], [], 0, 0);
-
-        // Event listener for the single reset button
-        resetBtn.addEventListener('click', resetCalculator);
-
-        // Populate with initial example data for convenience
+        // --- Inisialisasi & Event Listeners ---
         window.onload = () => {
-            resetCalculator(); // Call reset to initialize everything including data and chart
+            setIconVisibility();
+            resetCalculator();
         };
+        createInputsBtn.addEventListener('click', createDataInputFields);
+        calculateBtn.addEventListener('click', calculateRegression);
+        predictBtn.addEventListener('click', predictValue);
+        resetBtn.addEventListener('click', resetCalculator);
 
     </script>
 </body>
