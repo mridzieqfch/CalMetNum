@@ -289,10 +289,10 @@
             // Menentukan jenis hubungan berdasarkan nilai slope (b)
             if (b > 0.0001) {
                 relationshipType = 'positif';
-                relationshipEffect = `meningkatkan nilai Y sebesar <strong class="text-green-600 dark:text-green-400">${b.toFixed(4)}</strong>`;
+                relationshipEffect = `meningkatkan nilai Y kurang lebih sebesar <strong class="text-green-600 dark:text-green-400">${b.toFixed(4)}</strong>`;
             } else if (b < -0.0001) {
                 relationshipType = 'negatif';
-                relationshipEffect = `menurunkan nilai Y sebesar <strong class="text-red-600 dark:text-red-400">${Math.abs(b).toFixed(4)}</strong>`;
+                relationshipEffect = `menurunkan nilai Y kurang lebih sebesar <strong class="text-red-600 dark:text-red-400">${Math.abs(b).toFixed(4)}</strong>`;
             } else {
                 relationshipType = 'sangat lemah atau tidak signifikan';
                 relationshipEffect = 'hampir tidak mengubah nilai Y';
@@ -301,7 +301,7 @@
             // Membuat teks kesimpulan
             conclusionTextEl.innerHTML = `
                 <p>Model regresi yang terbentuk adalah <strong class="text-gray-900 dark:text-white">y = ${a.toFixed(4)} + ${b.toFixed(4)}x</strong>. Ini mengindikasikan adanya hubungan <strong>${relationshipType}</strong> antara variabel X dan Y.</p>
-                <p>Secara spesifik, setiap kenaikan <strong>1 unit</strong> pada variabel X, diperkirakan akan ${relationshipEffect}.</p>
+                <p>Secara ringkas, setiap kenaikan <strong>1 nilai/angka</strong> pada variabel X, maka diperkirakan akan ${relationshipEffect}.</p>
                 <p>Nilai intercept (a) sebesar <strong class="text-gray-900 dark:text-white">${a.toFixed(4)}</strong> merupakan nilai prediksi untuk Y ketika variabel X bernilai 0.</p>
             `;
 
